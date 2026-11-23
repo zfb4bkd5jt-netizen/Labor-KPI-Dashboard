@@ -454,6 +454,7 @@ def ueberwache():
 
 def main():
     print('Labor-KPI-Dashboard: Daten aktualisieren')
+    print('Python:', sys.executable)
     ok = aktualisiere()
     if UEBERWACHEN:
         ueberwache()

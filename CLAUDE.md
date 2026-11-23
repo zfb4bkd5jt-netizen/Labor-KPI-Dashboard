@@ -1,6 +1,6 @@
 # Labor-KPI-Dashboard – Übergabe an Claude Code
 
-Stand: 23.11.2026, Version 1.1. Auftraggeber und Nutzer: Matthias, Laborleiter des physikalisch-technischen Labors (Thomas Group, rund 32 Mitarbeiter, Labore QLA, QLC, QLG, QLM). Sprache: Deutsch, du-Form.
+Stand: 23.11.2026, Version 1.2. Auftraggeber und Nutzer: Matthias, Laborleiter des physikalisch-technischen Labors (Thomas Group, rund 32 Mitarbeiter, Labore QLA, QLC, QLG, QLM). Sprache: Deutsch, du-Form.
 
 Das Dashboard ersetzt den Power-BI-Bericht `QL.pbit` (Seiten HoQ_1_Termintreue, HoQ_2_… usw.). Es entstand in der Claude-App als Online-Dashboard; diese Übergabe enthält die eigenständige Offline-Fassung (eine HTML-Datei plus Python-Skript), mit der hier weitergearbeitet wird.
 
@@ -9,7 +9,7 @@ Das Dashboard ersetzt den Power-BI-Bericht `QL.pbit` (Seiten HoQ_1_Termintreue, 
 - **Keine Personennamen ins Dashboard.** Personenbezogene Auswertungen (Buchungsquote je Mitarbeiter) bleiben außerhalb, bis die Mitbestimmung geklärt ist. In `daten.js` stehen keine Personen-Auswertungen; Namen können nur in freien Auftragsbezeichnungen vorkommen.
 - **Firmendaten sind vertraulich.** Die Excel-Exporte und `daten.js` gehören nicht in Git und nicht in weitergegebene Pakete, außer Matthias sagt es ausdrücklich.
 - **Ein neues Offline-Paket (ZIP zum Weitergeben) nur auf Auftrag.** Entwickelt wird am Quellcode; Pakete schnürt Matthias bei bestimmten Versionsständen.
-- Version steht im Kopf des Dashboards (`<span id="version">`, gesetzt in `quellcode/bauen.py`). Aktuell 1.1.
+- Version steht im Kopf des Dashboards (`<span id="version">`, gesetzt in `quellcode/bauen.py`). Aktuell 1.2. Versionen: 1.1 = Übergabe aus der Claude-App; 1.2 = Offline-Paket mit mitgeliefertem Python, robustere Start-Skripte (Dashboard-Inhalt unverändert).
 - Texte im Dashboard sind Deutsch, sachlich, ohne Fachjargon von Power BI. Zahlen deutsch formatiert (1.234,5 %).
 
 ## Ordner
@@ -32,6 +32,10 @@ werkzeuge/     Einmal-Skripte aus der Entwicklung; Pfade darin zeigen noch auf d
   fuellen.py, grafik.py      füllen die drei KPI-Formblätter (Termintreue, Budgeteinhaltung, Qualitätslevel)
   altlasten.py               Liste alter, nie abgeschlossener Aufträge
 logo/          Logo „Thomas | Labor“ (quer und gestapelt, hell und negativ)
+portable/      PYTHON_VERSION: Python-Version für das Offline-Paket
+build_portable.sh   baut das Offline-Paket mit mitgeliefertem Python (dist/…_portable_Windows.zip)
+requirements.txt    pandas, openpyxl (für aktualisieren.py und das Offline-Paket)
+.github/workflows/pruefen.yml   automatische Prüfung: HTML passt zum Quellcode, Paket bauen, unter Windows testen
 ```
 
 Die Excel-Exporte legt Matthias selbst nach `dashboard/` (Dateinamen siehe LIESMICH.txt): LMS_Auftrag, LMS_Prüfgruppe, LMS_gebuchte_Stunden, manuelle_Daten, SAP_Instandhaltungskosten, Tabelle von Basis, TecSa_DB_Standardprüfung (freiwillig).
@@ -42,6 +46,8 @@ Die Excel-Exporte legt Matthias selbst nach `dashboard/` (Dateinamen siehe LIESM
 2. `cd quellcode && python bauen.py` → schreibt `dashboard/Labor-KPI-Dashboard.html`.
 3. Daten: `cd dashboard && python aktualisieren.py` (braucht pandas, openpyxl).
 4. Prüfen im Browser (Datei öffnen genügt, kein Server nötig). Für automatische Tests eignet sich Playwright: Seite laden, auf Konsolenfehler achten, Kacheltexte auslesen.
+
+**Offline-Paket:** `./build_portable.sh` (aktueller Commit) oder `./build_portable.sh v1.2` (Git-Tag) baut aus den eingecheckten Dateien von `dashboard/` plus dem offiziellen portablen Python für Windows (NuGet-Paket `python`, Version aus `portable/PYTHON_VERSION`) samt pandas und openpyxl ein ZIP. Auf dem Arbeitsplatz ist dann keine Python-Installation nötig; die `.bat`-Dateien nehmen zuerst `python\python.exe` im Ordner, sonst ein installiertes Python. Excel-Exporte und `daten.js` sind nicht in Git und kommen deshalb nie ins Paket. Weitergeben nur auf Auftrag (siehe Feste Regeln). Die HTML-Datei muss nach Änderungen am Quellcode neu gebaut und mit eingecheckt werden, sonst schlägt die automatische Prüfung fehl.
 
 `bauen.py` arbeitet mit Textersetzungen (`rep(...)`), die genau einmal treffen müssen; eine fehlgeschlagene Ersetzung bricht mit AssertionError ab. Die Reiter werden dort mit kleinen Hilfsfunktionen (`tile`, `card`, `chart`, `table`, `tab`) aufgebaut; Übersicht, Termintreue-Kacheln, Abweichungsliste und Budget-Einstieg stehen als `UEBERSICHT`, `TT_KACHELN`, `TT_LISTE`, `BUDGET`.
 
@@ -95,4 +101,4 @@ Kontrollwerte (Datenstand 04.11.2026, Quartale 2026): Termintreue Q1 81,6 / Q2 7
 - SOLL und Gewichte der Budgeteinhaltung (zurückgestellt).
 - KPI-Formblätter nachziehen, sobald die Regeln fest sind (das Formblatt Budgeteinhaltung beschreibt noch die alte Eigenleistungsquote).
 - SAP-Buchung Oktober und Abwesenheiten QLA klären.
-- Das Online-Dashboard in der Claude-App ist auf dem gleichen Stand wie diese Version 1.1, wird aber nicht automatisch mitgezogen.
+- Das Online-Dashboard in der Claude-App ist inhaltlich auf dem Stand der Version 1.1 (1.2 änderte nur das Offline-Paket), wird aber nicht automatisch mitgezogen.

@@ -1,9 +1,15 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
+rem Python suchen: zuerst das mitgelieferte im Unterordner python (Offline-Paket),
+rem sonst ein installiertes - aber nur, wenn es auch wirklich startet
+rem (der Starter "py" kann ohne installiertes Python vorhanden sein,
+rem "python" kann der Platzhalter aus dem Microsoft Store sein)
 set PY=
-where py >nul 2>nul && set PY=py -3
-if not defined PY (where python >nul 2>nul && set PY=python)
+rem %CD% statt %~dp0: nach dem cd oben zeigt %~dp0 je nach Aufruf auf einen falschen Ordner
+if exist "%CD%\python\python.exe" set PY="%CD%\python\python.exe" -E -s
+if not defined PY (py -3 -c "import sys" >nul 2>nul && set PY=py -3)
+if not defined PY (python -c "import sys" >nul 2>nul && set PY=python)
 if not defined PY (
   echo Python wurde auf diesem Rechner nicht gefunden.
   echo Bitte Python 3.9 oder neuer installieren ^(python.org oder ueber die IT^)

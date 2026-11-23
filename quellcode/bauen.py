@@ -111,7 +111,7 @@ body = rep(body, '''<option value="alle">2024–2026</option>
 body = rep(body, '<option value="0">0 (ohne Reaktionszeit)</option>\n      </select></label>', '<option value="0">0 (ohne Reaktionszeit)</option>\n      </select></label>\n    <label>Übersicht und BSC je\n      <select class="dash-select" data-param="bsc_periode" aria-label="Übersicht und BSC je Zeitraum">\n        <option value="monat">Monat</option><option value="quartal">Quartal</option><option value="jahr">Jahr</option>\n      </select></label>')
 body = rep(body, '(bei 2026: 01.01. bis Datenstand). Bei „2024–2026“ und 2024 gibt es keinen Vergleich.',
            'mit gleichem Quartal oder Monat (im laufenden Jahr jeweils nur bis zum Tag des Datenstands). Für das erste Jahr und für „alle Jahre“ gibt es keinen Vergleich.')
-body = rep(body, ' · Aufträge ab 01.01.2024</p>', ' · Aufträge ab 01.01.2024 · Daten erzeugt am <span id="lk-erzeugt">—</span> · <span id="version">Version 1.1</span></p>')
+body = rep(body, ' · Aufträge ab 01.01.2024</p>', ' · Aufträge ab 01.01.2024 · Daten erzeugt am <span id="lk-erzeugt">—</span> · <span id="version">Version 1.2</span></p>')
 
 S = lambda d: '<span data-draw="%s">—</span>' % d
 B = lambda d: '<b data-draw="%s">—</b>' % d
