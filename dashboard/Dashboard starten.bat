@@ -6,7 +6,8 @@ rem sonst ein installiertes - aber nur, wenn es auch wirklich startet
 rem (der Starter "py" kann ohne installiertes Python vorhanden sein,
 rem "python" kann der Platzhalter aus dem Microsoft Store sein)
 set PY=
-if exist "%~dp0python\python.exe" set PY="%~dp0python\python.exe" -E -s
+rem %CD% statt %~dp0: nach dem cd oben zeigt %~dp0 je nach Aufruf auf einen falschen Ordner
+if exist "%CD%\python\python.exe" set PY="%CD%\python\python.exe" -E -s
 if not defined PY (py -3 -c "import sys" >nul 2>nul && set PY=py -3)
 if not defined PY (python -c "import sys" >nul 2>nul && set PY=python)
 if not defined PY (
