@@ -19,7 +19,8 @@ jobs:
         working-directory: quellcode
         run: python bauen.py
       - name: Eingecheckte HTML-Datei ist aktuell
-        run: git diff --exit-code -- dashboard/Labor-KPI-Dashboard.html || { echo "dashboard/Labor-KPI-Dashboard.html passt nicht zum Quellcode. Bitte quellcode/bauen.py ausführen und die HTML-Datei mit einchecken."; exit 1; }
+        run: |
+          git diff --exit-code -- dashboard/Labor-KPI-Dashboard.html || { echo "dashboard/Labor-KPI-Dashboard.html passt nicht zum Quellcode. Bitte quellcode/bauen.py ausführen und die HTML-Datei mit einchecken."; exit 1; }
 
   portable-bauen:
     name: Offline-Paket bauen
@@ -46,7 +47,8 @@ jobs:
         run: Get-ChildItem *.zip | ForEach-Object { Expand-Archive $_ -DestinationPath . }
       - name: Mitgeliefertes Python liest und schreibt Excel
         shell: cmd
-        run: Labor-KPI-Dashboard\python\python.exe -E -s -c "import pandas as pd, openpyxl; pd.DataFrame({'a': [1, 2]}).to_excel('t.xlsx', index=False); assert pd.read_excel('t.xlsx')['a'].sum() == 3; print('pandas', pd.__version__, 'openpyxl', openpyxl.__version__)"
+        run: |
+          Labor-KPI-Dashboard\python\python.exe -E -s -c "import pandas as pd, openpyxl; pd.DataFrame({'a': [1, 2]}).to_excel('t.xlsx', index=False); assert pd.read_excel('t.xlsx')['a'].sum() == 3; print('pandas', pd.__version__, 'openpyxl', openpyxl.__version__)"
       - name: Aktualisieren.bat nimmt das mitgelieferte Python
         shell: pwsh
         run: |
@@ -55,6 +57,7 @@ jobs:
           if ($aus -notmatch [regex]::Escape('Labor-KPI-Dashboard\python\python.exe')) { throw "Aktualisieren.bat hat nicht das mitgelieferte Python genommen" }
           if ($aus -notmatch 'Diese Dateien fehlen') { throw "Erwartete Meldung zu fehlenden Excel-Dateien kam nicht" }
           Write-Host "Aktualisieren.bat startet mit dem mitgelieferten Python und meldet die fehlenden Exporte."
+          $global:LASTEXITCODE = 0   # ohne Exporte endet Aktualisieren.bat absichtlich mit Fehlercode
       - name: Keine Firmendaten im Paket
         shell: pwsh
         run: |

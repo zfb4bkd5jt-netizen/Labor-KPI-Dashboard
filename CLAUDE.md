@@ -1,6 +1,6 @@
 # Labor-KPI-Dashboard – Übergabe an Claude Code
 
-Stand: 23.11.2026, Version 1.1. Auftraggeber und Nutzer: Matthias, Laborleiter des physikalisch-technischen Labors (Thomas Group, rund 32 Mitarbeiter, Labore QLA, QLC, QLG, QLM). Sprache: Deutsch, du-Form.
+Stand: 23.11.2026, Version 1.2. Auftraggeber und Nutzer: Matthias, Laborleiter des physikalisch-technischen Labors (Thomas Group, rund 32 Mitarbeiter, Labore QLA, QLC, QLG, QLM). Sprache: Deutsch, du-Form.
 
 Das Dashboard ersetzt den Power-BI-Bericht `QL.pbit` (Seiten HoQ_1_Termintreue, HoQ_2_… usw.). Es entstand in der Claude-App als Online-Dashboard; diese Übergabe enthält die eigenständige Offline-Fassung (eine HTML-Datei plus Python-Skript), mit der hier weitergearbeitet wird.
 
@@ -9,7 +9,7 @@ Das Dashboard ersetzt den Power-BI-Bericht `QL.pbit` (Seiten HoQ_1_Termintreue, 
 - **Keine Personennamen ins Dashboard.** Personenbezogene Auswertungen (Buchungsquote je Mitarbeiter) bleiben außerhalb, bis die Mitbestimmung geklärt ist. In `daten.js` stehen keine Personen-Auswertungen; Namen können nur in freien Auftragsbezeichnungen vorkommen.
 - **Firmendaten sind vertraulich.** Die Excel-Exporte und `daten.js` gehören nicht in Git und nicht in weitergegebene Pakete, außer Matthias sagt es ausdrücklich.
 - **Ein neues Offline-Paket (ZIP zum Weitergeben) nur auf Auftrag.** Entwickelt wird am Quellcode; Pakete schnürt Matthias bei bestimmten Versionsständen.
-- Version steht im Kopf des Dashboards (`<span id="version">`, gesetzt in `quellcode/bauen.py`). Aktuell 1.1.
+- Version steht im Kopf des Dashboards (`<span id="version">`, gesetzt in `quellcode/bauen.py`). Aktuell 1.2. Versionen: 1.1 = Übergabe aus der Claude-App; 1.2 = Offline-Paket mit mitgeliefertem Python, robustere Start-Skripte (Dashboard-Inhalt unverändert).
 - Texte im Dashboard sind Deutsch, sachlich, ohne Fachjargon von Power BI. Zahlen deutsch formatiert (1.234,5 %).
 
 ## Ordner
@@ -101,4 +101,4 @@ Kontrollwerte (Datenstand 04.11.2026, Quartale 2026): Termintreue Q1 81,6 / Q2 7
 - SOLL und Gewichte der Budgeteinhaltung (zurückgestellt).
 - KPI-Formblätter nachziehen, sobald die Regeln fest sind (das Formblatt Budgeteinhaltung beschreibt noch die alte Eigenleistungsquote).
 - SAP-Buchung Oktober und Abwesenheiten QLA klären.
-- Das Online-Dashboard in der Claude-App ist auf dem gleichen Stand wie diese Version 1.1, wird aber nicht automatisch mitgezogen.
+- Das Online-Dashboard in der Claude-App ist inhaltlich auf dem Stand der Version 1.1 (1.2 änderte nur das Offline-Paket), wird aber nicht automatisch mitgezogen.
