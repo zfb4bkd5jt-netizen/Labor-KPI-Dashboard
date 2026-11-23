@@ -3,3 +3,4 @@
 dashboard/daten.js
 dashboard/stand.js
 __pycache__/
+dist/

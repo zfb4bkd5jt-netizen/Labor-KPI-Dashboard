@@ -32,6 +32,11 @@ So wird es benutzt
 
 Einmalig einrichten
 -------------------
+  Offline-Paket mit Unterordner "python": nichts einzurichten. Python, pandas und openpyxl sind
+  mitgeliefert; es wird nichts installiert und keine Administratorrechte gebraucht. Den Unterordner
+  "python" nicht löschen oder verschieben.
+
+  Ohne Unterordner "python" wird ein installiertes Python genommen:
   1. Python 3.9 oder neuer installieren (python.org oder über die IT).
   2. In der Eingabeaufforderung:  pip install pandas openpyxl
   Ohne Python lässt sich das Dashboard trotzdem öffnen; es zeigt dann den Stand der mitgelieferten daten.js.
