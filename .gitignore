@@ -1,0 +1,5 @@
+# Vertrauliche Daten nicht einchecken
+*.xlsx
+dashboard/daten.js
+dashboard/stand.js
+__pycache__/

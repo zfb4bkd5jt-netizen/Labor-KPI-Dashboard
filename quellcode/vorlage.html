@@ -1,0 +1,484 @@
+<meta name="dash-one-writer">
+<style>
+.lk { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.lk h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.lk h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.lk .sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0; }
+.lk .lead { font-size: var(--cds-font-size-body); margin: var(--cds-gap-sm) 0 0; max-width: 60em; line-height: 1.5; }
+.lk .filters { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; }
+.lk .filters label { display: flex; flex-direction: column; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lk .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--cds-gap-md); }
+.lk .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.lk .tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lk .tile .val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2rem; line-height: 1.2; margin: var(--cds-gap-xs) 0; font-variant-numeric: tabular-nums; }
+.lk .tile .chg { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.lk .good { color: var(--color-ok); } .lk .bad { color: var(--color-bad); } .lk .neutral { color: var(--color-fg-muted); }
+.lk .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-md); }
+.lk .chart { position: relative; min-height: 260px; }
+.lk .chart.small { min-height: 200px; }
+.lk .chart svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); }
+.lk .chart .domain, .lk .chart .tick line { stroke: var(--cds-chart-axis); }
+.lk .chart .grid line { stroke: var(--cds-chart-grid); }
+.lk .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.lk .legend { display: flex; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-xs); }
+.lk .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.lk .tw { overflow-x: auto; }
+.lk table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.lk th, .lk td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.lk th:first-child, .lk td:first-child, .lk th.l, .lk td.l { text-align: left; }
+.lk td.wrap { white-space: normal; min-width: 14em; }
+.lk th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+.lk details { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+.lk details summary { cursor: pointer; color: var(--color-fg); }
+.lk [data-dash-source-state=refreshing] { opacity: .5; }
+.lk .fail { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-md); }
+</style>
+
+<div class="lk" data-read lang="de">
+  <header id="kopf">
+    <h1>Labor-KPI-Dashboard</h1>
+    <p class="sub">Laboraufträge aus dem LIMS (dacore), Export „LMS_Auftrag“ · Datenstand <span data-draw="stand" data-source="kpi" data-field="stand" data-row="0">—</span> · Aufträge ab 01.01.2024</p>
+    <p class="lead" id="fazit">Im gewählten Zeitraum gingen <b data-draw="t_eingang" data-source="kpi" data-field="eingang" data-row="0">—</b> Aufträge ein; <b data-draw="t_tt" data-source="kpi" data-field="termintreue" data-row="0">—</b> der abgeschlossenen Aufträge wurden bis zum zugesagten Termin technisch abgeschlossen. Aktuell sind <b data-draw="t_offen" data-source="kpi" data-field="offen" data-row="0">—</b> Aufträge offen, davon <b data-draw="t_ueber" data-source="kpi" data-field="ueberfaellig" data-row="0">—</b> über dem zugesagten Termin.</p>
+  </header>
+
+  <div class="filters" id="filter">
+    <label>Jahr
+      <select class="dash-select" data-param="jahr" aria-label="Jahr">
+        <option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="alle">2024–2026</option>
+      </select></label>
+    <label>Labor
+      <select class="dash-select" data-param="labor" aria-label="Labor">
+        <option value="">Alle Labore</option><option value="QLA">QLA</option><option value="QLC">QLC</option><option value="QLG">QLG</option><option value="QLM">QLM</option>
+      </select></label>
+    <label>Priorität (Art)
+      <select class="dash-select" data-param="prio" aria-label="Priorität">
+        <option value="">Alle</option><option value="S">S (48 h)</option><option value="M">M (14 d)</option><option value="L">L (70 d)</option><option value="0">0 (ohne Reaktionszeit)</option>
+      </select></label>
+  </div>
+
+  <section class="tiles" id="kennzahlen">
+    <div class="card tile" id="k-eingang"><div class="lbl">Auftragseingang</div>
+      <div class="val dash-skeleton" data-draw="v_eingang" data-source="kpi" data-field="eingang" data-row="0">—</div>
+      <div class="chg" data-draw="c_eingang" data-source="kpi" data-field="d_eingang" data-row="0"></div></div>
+    <div class="card tile" id="k-abschluss"><div class="lbl">Technisch abgeschlossen</div>
+      <div class="val dash-skeleton" data-draw="v_abg" data-source="kpi" data-field="abgeschlossen" data-row="0">—</div>
+      <div class="chg" data-draw="c_abg" data-source="kpi" data-field="d_abgeschlossen" data-row="0"></div></div>
+    <div class="card tile" id="k-termintreue"><div class="lbl">Termintreue</div>
+      <div class="val dash-skeleton" data-draw="v_tt" data-source="kpi" data-field="termintreue" data-row="0">—</div>
+      <div class="chg" data-draw="c_tt" data-source="kpi" data-field="d_termintreue" data-row="0"></div></div>
+    <div class="card tile" id="k-dlz"><div class="lbl">Durchlaufzeit (Median, Tage)</div>
+      <div class="val dash-skeleton" data-draw="v_dlz" data-source="kpi" data-field="dlz_median" data-row="0">—</div>
+      <div class="chg" data-draw="c_dlz" data-source="kpi" data-field="d_dlz" data-row="0"></div></div>
+    <div class="card tile" id="k-wert"><div class="lbl">Auftragswert (Eingang)</div>
+      <div class="val dash-skeleton" data-draw="v_wert" data-source="kpi" data-field="wert" data-row="0">—</div>
+      <div class="chg" data-draw="c_wert" data-source="kpi" data-field="d_wert" data-row="0"></div></div>
+    <div class="card tile" id="k-offen"><div class="lbl">Offen / davon überfällig</div>
+      <div class="val dash-skeleton"><span data-draw="v_offen" data-source="kpi" data-field="offen" data-row="0">—</span> / <span class="bad" data-draw="v_ueber" data-source="kpi" data-field="ueberfaellig" data-row="0">—</span></div>
+      <div class="chg neutral">Stand heute, unabhängig vom Jahr</div></div>
+  </section>
+  <p class="sub" id="vergleich-hinweis">Veränderung gegenüber dem gleichen Zeitraum des Vorjahres (bei 2026: 01.01. bis Datenstand). Bei „2024–2026“ und 2024 gibt es keinen Vergleich.</p>
+
+  <section class="card" id="monatsverlauf">
+    <h2>Auftragseingang und Abschlüsse je Monat</h2>
+    <div class="legend"><span><i data-draw="leg0"></i>Eingang</span><span><i data-draw="leg1"></i>Technisch abgeschlossen</span></div>
+    <div class="chart" data-draw="ch_monat" data-source="monat"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card" id="termintreue-verlauf">
+      <h2>Termintreue je Monat</h2>
+      <p class="sub">Anteil der im Monat abgeschlossenen Aufträge mit Abschluss bis zum zugesagten Termin</p>
+      <div class="chart small" data-draw="ch_tt" data-source="monat"></div>
+    </section>
+    <section class="card" id="offen-alter">
+      <h2>Offene Aufträge nach Alter</h2>
+      <p class="sub">Tage seit Anlage, Stand heute</p>
+      <div class="chart small" data-draw="ch_alter" data-source="offen_alter"></div>
+    </section>
+  </div>
+
+  <section class="card" id="nach-prioritaet">
+    <h2>Nach Priorität</h2>
+    <p class="sub">Durchlaufzeit = Kalendertage von Anlage bis technischem Abschluss</p>
+    <div class="tw"><table data-source="prio_tab" data-row-key="prio">
+      <thead><tr><th data-field="prio">Priorität</th><th data-field="eingang">Eingang</th><th data-field="abgeschlossen">Abgeschl.</th><th data-field="termintreue">Termintreue</th><th data-field="dlz_median">DLZ Median</th><th data-field="dlz_p90">DLZ 90 %</th><th data-field="offen">Offen</th></tr></thead>
+      <tbody data-draw="tb_prio"></tbody></table></div>
+  </section>
+
+  <section class="card" id="nach-labor">
+    <h2>Nach Labor</h2>
+    <p class="sub">Ein Auftrag mit mehreren Laboren zählt bei jedem beteiligten Labor; der Auftragswert ist im Export nicht auf Labore aufgeteilt und erscheint dann bei jedem voll.</p>
+    <div class="tw"><table data-source="labor_tab" data-row-key="labor">
+      <thead><tr><th data-field="labor">Labor</th><th data-field="eingang">Eingang</th><th data-field="abgeschlossen">Abgeschl.</th><th data-field="termintreue">Termintreue</th><th data-field="dlz_median">DLZ Median</th><th data-field="offen">Offen</th><th data-field="ueberfaellig">Überfällig</th><th data-field="wert">Auftragswert</th></tr></thead>
+      <tbody data-draw="tb_labor"></tbody></table></div>
+  </section>
+
+  <section class="card" id="anfrageart">
+    <h2>Auftragseingang nach Art der Anfrage</h2>
+    <div class="chart small" data-draw="ch_anfrage" data-source="anfrage"></div>
+  </section>
+
+  <section class="card" id="ueberfaellig">
+    <h2>Überfällige offene Aufträge</h2>
+    <p class="sub">Ohne technischen Abschluss und zugesagter Termin vor dem Datenstand; die 25 am längsten überfälligen. Sehr alte Einträge sind oft nur nicht im LIMS abgeschlossen.</p>
+    <div class="tw"><table data-source="ueberfaellig_liste" data-row-key="auftrag">
+      <thead><tr><th data-field="auftrag">Auftrag</th><th class="l" data-field="bezeichnung">Bezeichnung</th><th class="l" data-field="labore">Labor</th><th class="l" data-field="prio">Prio</th><th data-field="termin">Termin</th><th data-field="tage_ueber">Tage über</th></tr></thead>
+      <tbody data-draw="tb_ueber"></tbody></table></div>
+  </section>
+
+  <details id="definitionen"><summary>Definitionen und Annahmen</summary>
+    <p><b>Auftragseingang:</b> Aufträge mit Anlagedatum („Erstellt am“) im Zeitraum. <b>Technisch abgeschlossen:</b> Aufträge mit „Techn. Abschluss“ im Zeitraum. <b>Termintreue:</b> Anteil der abgeschlossenen Aufträge mit zugesagtem Termin, deren Abschlussdatum am oder vor dem Termin liegt (Aufträge ohne Termin zählen nicht mit). <b>Durchlaufzeit:</b> Kalendertage zwischen Anlage und technischem Abschluss. <b>Überfällig:</b> offen und zugesagter Termin vor dem Datenstand. <b>Auftragswert:</b> Feld „Auftragswert berechnet“ der im Zeitraum eingegangenen Aufträge.</p>
+    <p>Aufbereitung: doppelte Zeilen entfernt, eine Zeile je Auftragsnummer, Labore eines Auftrags zusammengefasst. Aufträge von 2022/2023 (überwiegend Test- und Anlaufeinträge) sind ausgelassen.</p>
+  </details>
+</div>
+
+<script>
+// Filter: Auswahl liegt außerhalb jeder Abfrage, ein Wechsel rechnet sofort neu.
+document.querySelectorAll('.lk select[data-param]').forEach((sel) => {
+  const name = sel.getAttribute('data-param');
+  const v = dash.params()[name];
+  sel.value = v == null ? (name === 'jahr' ? '2026' : '') : String(v);
+  sel.addEventListener('change', () => dash.setParams({ [name]: sel.value }));
+});
+
+dash.calc('kpi', {
+  inputs: ['auftraege'],
+  title: 'Kennzahlen im gewählten Zeitraum',
+  description: 'Eingang, Abschlüsse, Termintreue, Durchlaufzeit und Auftragswert für Jahr, Labor und Priorität der Auswahl, dazu der gleiche Zeitraum des Vorjahres und der offene Bestand.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const jahr = p.jahr || '2026', lab = p.labor || '', prio = p.prio || '';
+    const qu = p.quartal || '', mon = p.monat || '';
+    let stand = '';
+    for (const r of auftraege) { if (r.erstellt > stand) stand = r.erstellt; if (r.abschluss && r.abschluss > stand) stand = r.abschluss; }
+    const rows = auftraege.filter((r) => (!lab || (r.labore || '').split(';').includes(lab)) && (!prio || r.prio === prio));
+    const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+    const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+    const stats = (y, cut) => {
+      const inW = (d) => d && (y === 'alle' || (d.slice(0, 4) === y && (!cut || d.slice(5) <= cut)))
+        && (!mon || d.slice(5, 7) === mon) && (!qu || String(Math.ceil(Number(d.slice(5, 7)) / 3)) === qu);
+      const ein = rows.filter((r) => inW(r.erstellt));
+      const done = rows.filter((r) => inW(r.abschluss));
+      const mitTermin = done.filter((r) => r.termin);
+      return {
+        eingang: ein.length,
+        abgeschlossen: done.length,
+        termintreue: mitTermin.length ? Math.round(1000 * mitTermin.filter((r) => r.abschluss <= r.termin).length / mitTermin.length) / 10 : null,
+        dlz_median: median(done.map((r) => days(r.erstellt, r.abschluss))),
+        wert: Math.round(ein.reduce((s, r) => s + (r.wert || 0), 0)),
+      };
+    };
+    const cur = stats(jahr, null);
+    const hatVj = jahr !== 'alle' && jahr !== '2024';
+    const vj = hatVj ? stats(String(Number(jahr) - 1), jahr === stand.slice(0, 4) ? stand.slice(5) : null) : null;
+    const pct = (a, b) => (vj && b ? Math.round(1000 * (a - b) / b) / 10 : null);
+    const offen = rows.filter((r) => !r.abschluss);
+    return [{
+      stand, zeitraum: jahr,
+      ...cur,
+      eingang_vj: vj ? vj.eingang : null, abgeschlossen_vj: vj ? vj.abgeschlossen : null,
+      termintreue_vj: vj ? vj.termintreue : null, dlz_vj: vj ? vj.dlz_median : null, wert_vj: vj ? vj.wert : null,
+      d_eingang: pct(cur.eingang, vj && vj.eingang),
+      d_abgeschlossen: pct(cur.abgeschlossen, vj && vj.abgeschlossen),
+      d_termintreue: vj && vj.termintreue != null && cur.termintreue != null ? Math.round(10 * (cur.termintreue - vj.termintreue)) / 10 : null,
+      d_dlz: vj && vj.dlz_median != null && cur.dlz_median != null ? cur.dlz_median - vj.dlz_median : null,
+      d_wert: pct(cur.wert, vj && vj.wert),
+      offen: offen.length,
+      ueberfaellig: offen.filter((r) => r.termin && r.termin < stand).length,
+    }];
+  },
+});
+
+dash.calc('monat', {
+  inputs: ['auftraege'],
+  title: 'Verlauf je Monat',
+  description: 'Je Monat: eingegangene und technisch abgeschlossene Aufträge sowie die Termintreue der Abschlüsse.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const jahr = p.jahr || '2026', lab = p.labor || '', prio = p.prio || '';
+    const qu = p.quartal || '', mon = p.monat || '';
+    let stand = '';
+    for (const r of auftraege) { if (r.erstellt > stand) stand = r.erstellt; if (r.abschluss && r.abschluss > stand) stand = r.abschluss; }
+    const rows = auftraege.filter((r) => (!lab || (r.labore || '').split(';').includes(lab)) && (!prio || r.prio === prio));
+    const months = [];
+    const startY = jahr === 'alle' ? 2024 : Number(jahr), endY = jahr === 'alle' ? Number(stand.slice(0, 4)) : Number(jahr);
+    for (let y = startY; y <= endY; y++) for (let m = 1; m <= 12; m++) {
+      const k = y + '-' + String(m).padStart(2, '0');
+      if (k <= stand.slice(0, 7) && (!mon || k.slice(5) === mon) && (!qu || String(Math.ceil(m / 3)) === qu)) months.push(k);
+    }
+    const map = new Map(months.map((k) => [k, { monat: k, eingang: 0, abgeschlossen: 0, mit_termin: 0, termingerecht: 0, termintreue: null }]));
+    for (const r of rows) {
+      const a = map.get(r.erstellt.slice(0, 7)); if (a) a.eingang++;
+      if (r.abschluss) { const b = map.get(r.abschluss.slice(0, 7)); if (b) { b.abgeschlossen++; if (r.termin) { b.mit_termin++; if (r.abschluss <= r.termin) b.termingerecht++; } } }
+    }
+    for (const v of map.values()) v.termintreue = v.mit_termin ? Math.round(1000 * v.termingerecht / v.mit_termin) / 10 : null;
+    return [...map.values()];
+  },
+});
+
+dash.calc('prio_tab', {
+  inputs: ['auftraege'],
+  title: 'Kennzahlen nach Priorität',
+  description: 'Eingang, Abschlüsse, Termintreue und Durchlaufzeit je Priorität (Art) für Jahr und Labor der Auswahl; offen = Stand heute.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const jahr = p.jahr || '2026', lab = p.labor || '';
+    const qu = p.quartal || '', mon = p.monat || '';
+    const rows = auftraege.filter((r) => !lab || (r.labore || '').split(';').includes(lab));
+    const inW = (d) => d && (jahr === 'alle' || d.slice(0, 4) === jahr)
+      && (!mon || d.slice(5, 7) === mon) && (!qu || String(Math.ceil(Number(d.slice(5, 7)) / 3)) === qu);
+    const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+    const q = (a, f) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(f * s.length))]; };
+    const names = { S: 'S (48 h)', M: 'M (14 d)', L: 'L (70 d)', '0': '0 (ohne Reaktionszeit)' };
+    return ['S', 'M', 'L', '0'].map((k) => {
+      const g = rows.filter((r) => r.prio === k);
+      const done = g.filter((r) => inW(r.abschluss)), mt = done.filter((r) => r.termin);
+      const d = done.map((r) => days(r.erstellt, r.abschluss));
+      const s = d.slice().sort((x, y) => x - y), m = s.length >> 1;
+      return {
+        prio: names[k],
+        eingang: g.filter((r) => inW(r.erstellt)).length,
+        abgeschlossen: done.length,
+        termintreue: mt.length ? Math.round(1000 * mt.filter((r) => r.abschluss <= r.termin).length / mt.length) / 10 : null,
+        dlz_median: s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null,
+        dlz_p90: q(d, 0.9),
+        offen: g.filter((r) => !r.abschluss).length,
+      };
+    });
+  },
+});
+
+dash.calc('labor_tab', {
+  inputs: ['auftraege'],
+  title: 'Kennzahlen nach Labor',
+  description: 'Je Labor (QLA, QLC, QLG, QLM) für Jahr und Priorität der Auswahl; Aufträge mit mehreren Laboren zählen bei jedem.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const jahr = p.jahr || '2026', prio = p.prio || '';
+    const qu = p.quartal || '', mon = p.monat || '';
+    let stand = '';
+    for (const r of auftraege) { if (r.erstellt > stand) stand = r.erstellt; if (r.abschluss && r.abschluss > stand) stand = r.abschluss; }
+    const rows = auftraege.filter((r) => !prio || r.prio === prio);
+    const inW = (d) => d && (jahr === 'alle' || d.slice(0, 4) === jahr)
+      && (!mon || d.slice(5, 7) === mon) && (!qu || String(Math.ceil(Number(d.slice(5, 7)) / 3)) === qu);
+    const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+    return ['QLA', 'QLC', 'QLG', 'QLM'].map((lab) => {
+      const g = rows.filter((r) => (r.labore || '').split(';').includes(lab));
+      const ein = g.filter((r) => inW(r.erstellt));
+      const done = g.filter((r) => inW(r.abschluss)), mt = done.filter((r) => r.termin);
+      const s = done.map((r) => days(r.erstellt, r.abschluss)).sort((x, y) => x - y), m = s.length >> 1;
+      const offen = g.filter((r) => !r.abschluss);
+      return {
+        labor: lab,
+        eingang: ein.length,
+        abgeschlossen: done.length,
+        termintreue: mt.length ? Math.round(1000 * mt.filter((r) => r.abschluss <= r.termin).length / mt.length) / 10 : null,
+        dlz_median: s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null,
+        offen: offen.length,
+        ueberfaellig: offen.filter((r) => r.termin && r.termin < stand).length,
+        wert: Math.round(ein.reduce((t, r) => t + (r.wert || 0), 0)),
+      };
+    });
+  },
+});
+
+dash.calc('anfrage', {
+  inputs: ['auftraege'],
+  title: 'Eingang nach Art der Anfrage',
+  description: 'Eingegangene Aufträge je Art der Anfrage für die Auswahl.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const jahr = p.jahr || '2026', lab = p.labor || '', prio = p.prio || '';
+    const qu = p.quartal || '', mon = p.monat || '';
+    const rows = auftraege.filter((r) => (!lab || (r.labore || '').split(';').includes(lab)) && (!prio || r.prio === prio) && (jahr === 'alle' || r.erstellt.slice(0, 4) === jahr)
+      && (!mon || r.erstellt.slice(5, 7) === mon) && (!qu || String(Math.ceil(Number(r.erstellt.slice(5, 7)) / 3)) === qu));
+    const c = new Map();
+    for (const r of rows) c.set(r.anfrageart, (c.get(r.anfrageart) || 0) + 1);
+    return [...c].map(([art, n]) => ({ art, eingang: n, anteil: rows.length ? Math.round(1000 * n / rows.length) / 10 : null })).sort((a, b) => b.eingang - a.eingang);
+  },
+});
+
+dash.calc('offen_alter', {
+  inputs: ['auftraege'],
+  title: 'Offene Aufträge nach Alter',
+  description: 'Offene Aufträge (ohne technischen Abschluss) nach Tagen seit Anlage, für Labor und Priorität der Auswahl.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const lab = p.labor || '', prio = p.prio || '';
+    let stand = '';
+    for (const r of auftraege) { if (r.erstellt > stand) stand = r.erstellt; if (r.abschluss && r.abschluss > stand) stand = r.abschluss; }
+    const rows = auftraege.filter((r) => !r.abschluss && (!lab || (r.labore || '').split(';').includes(lab)) && (!prio || r.prio === prio));
+    const b = [{ alter: '≤ 14 Tage', max: 14 }, { alter: '15–70 Tage', max: 70 }, { alter: '71–365 Tage', max: 365 }, { alter: '> 1 Jahr', max: Infinity }];
+    const out = b.map((x) => ({ alter: x.alter, anzahl: 0 }));
+    for (const r of rows) {
+      const d = Math.round((Date.parse(stand) - Date.parse(r.erstellt)) / 864e5);
+      out[b.findIndex((x) => d <= x.max)].anzahl++;
+    }
+    return out;
+  },
+});
+
+dash.calc('ueberfaellig_liste', {
+  inputs: ['auftraege'],
+  title: 'Überfällige offene Aufträge',
+  description: 'Offene Aufträge mit zugesagtem Termin vor dem Datenstand, die 25 am längsten überfälligen, für Labor und Priorität der Auswahl.',
+  fn: (auftraege) => {
+    const p = dash.params();
+    const lab = p.labor || '', prio = p.prio || '';
+    let stand = '';
+    for (const r of auftraege) { if (r.erstellt > stand) stand = r.erstellt; if (r.abschluss && r.abschluss > stand) stand = r.abschluss; }
+    return auftraege
+      .filter((r) => !r.abschluss && r.termin && r.termin < stand && (!lab || (r.labore || '').split(';').includes(lab)) && (!prio || r.prio === prio))
+      .map((r) => ({ auftrag: r.auftrag, bezeichnung: r.bezeichnung, labore: (r.labore || '').replace(/;/g, ', '), prio: r.prio, termin: r.termin, tage_ueber: Math.round((Date.parse(stand) - Date.parse(r.termin)) / 864e5) }))
+      .sort((a, b) => b.tage_ueber - a.tage_ueber)
+      .slice(0, 25);
+  },
+});
+</script>
+
+<script>
+(() => {
+  const de = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['', ' €'] });
+  const fInt = de.format(',.0f'), fDec = de.format(',.1f'), fEur = de.format('$,.0f');
+  const fDate = (s) => (s ? s.slice(8, 10) + '.' + s.slice(5, 7) + '.' + s.slice(0, 4) : '—');
+  const fPct = (v) => (v == null ? '—' : fDec(v) + ' %');
+  const fDays = (v) => (v == null ? '—' : (Number.isInteger(v) ? fInt(v) : fDec(v)));
+  const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+  const fMonth = (k) => monthNames[Number(k.slice(5, 7)) - 1] + ' ' + k.slice(2, 4);
+  window.LKfmt = { fInt, fDec, fEur, fDate, fPct, fDays, fMonth };
+
+  const kpi = () => { const k = dash.data('kpi'); return k.status === 'ok' && k.data && k.data[0] ? k.data[0] : null; };
+  const clearSkel = (el) => { const s = dash.data('kpi').status; if (s !== 'loading') { const v = el.closest('.val'); if (v) v.classList.remove('dash-skeleton'); el.classList.remove('dash-skeleton'); } };
+  const val = (name, field, fmt) => dash.draw(name, (el) => { const r = kpi(); clearSkel(el); el.textContent = r && r[field] != null ? fmt(r[field]) : '—'; });
+
+  val('stand', 'stand', fDate);
+  val('t_eingang', 'eingang', fInt); val('t_tt', 'termintreue', fPct); val('t_offen', 'offen', fInt); val('t_ueber', 'ueberfaellig', fInt);
+  val('v_eingang', 'eingang', fInt); val('v_abg', 'abgeschlossen', fInt); val('v_tt', 'termintreue', fPct);
+  val('v_dlz', 'dlz_median', fDays); val('v_wert', 'wert', fEur); val('v_offen', 'offen', fInt); val('v_ueber', 'ueberfaellig', fInt);
+
+  // Veränderung: Farbe nach gut/schlecht, nicht nach Vorzeichen.
+  const chg = (name, field, unit, higherIsGood) => dash.draw(name, (el) => {
+    const r = kpi();
+    const v = r ? r[field] : null;
+    el.classList.remove('good', 'bad', 'neutral');
+    if (v == null) { el.textContent = r ? 'kein Vorjahresvergleich' : ''; el.classList.add('neutral'); return; }
+    const sign = v > 0 ? '+' : v < 0 ? '−' : '±';
+    el.textContent = sign + (unit === 'd' ? fDays(Math.abs(v)) + ' Tage' : fDec(Math.abs(v)) + (unit === 'pp' ? ' Pp.' : ' %')) + ' ggü. Vorjahr';
+    el.classList.add(v === 0 ? 'neutral' : (v > 0) === higherIsGood ? 'good' : 'bad');
+  });
+  chg('c_eingang', 'd_eingang', '%', true);
+  chg('c_abg', 'd_abgeschlossen', '%', true);
+  chg('c_tt', 'd_termintreue', 'pp', true);
+  chg('c_dlz', 'd_dlz', 'd', false);
+  chg('c_wert', 'd_wert', '%', true);
+
+  dash.draw('leg0', (el) => { el.style.background = dash.colors[0]; });
+  dash.draw('leg1', (el) => { el.style.background = dash.colors[1]; });
+})();
+</script>
+
+<script>
+(() => {
+  const F = window.LKfmt;
+  const status = (el, id) => {
+    const s = dash.data(id);
+    if (s.status === 'ok') return s.data || [];
+    el.replaceChildren();
+    if (s.status === 'error' || s.status === 'missing') { const d = document.createElement('div'); d.className = 'fail'; d.textContent = 'Daten konnten nicht geladen werden'; el.append(d); }
+    return null;
+  };
+  const tipFor = (el) => { const t = document.createElement('div'); t.className = 'tip'; t.hidden = true; el.append(t); return t; };
+  const placeTip = (el, tip, ev, lines) => {
+    tip.replaceChildren(...lines.map((l, i) => { const d = document.createElement('div'); if (i === 0) d.style.fontWeight = '600'; d.textContent = l; return d; }));
+    tip.hidden = false;
+    const r = el.getBoundingClientRect();
+    let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+    if (x + tip.offsetWidth > r.width) x = Math.max(0, ev.clientX - r.left - tip.offsetWidth - 12);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+
+  // Monatsverlauf: gruppierte Balken
+  dash.draw('ch_monat', (el) => {
+    const rows = status(el, 'monat'); if (!rows) return;
+    el.replaceChildren();
+    const W = el.clientWidth || 600, H = window.LKhoehe ? window.LKhoehe(el, 260) : 260, m = { t: 10, r: 8, b: 26, l: 40 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img').attr('aria-label', 'Auftragseingang und technische Abschlüsse je Monat');
+    const x = d3.scaleBand().domain(rows.map((d) => d.monat)).range([m.l, W - m.r]).paddingInner(0.25).paddingOuter(0.1);
+    const x1 = d3.scaleBand().domain(['eingang', 'abgeschlossen']).range([0, x.bandwidth()]).padding(0.08);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, (d) => Math.max(d.eingang, d.abgeschlossen)) || 1]).nice().range([H - m.b, m.t]);
+    svg.append('g').attr('class', 'grid').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat('')).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(F.fInt)).call((g) => g.select('.domain').remove());
+    const step = Math.max(1, Math.ceil(rows.length / Math.max(1, Math.floor((W - m.l) / 52))));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(rows.map((d) => d.monat).filter((_, i) => i % step === 0)).tickFormat(F.fMonth).tickSizeOuter(0));
+    const tip = tipFor(el);
+    const g = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (d) => `translate(${x(d.monat)},0)`);
+    ['eingang', 'abgeschlossen'].forEach((k, i) => {
+      g.append('rect').attr('x', x1(k)).attr('width', x1.bandwidth()).attr('y', (d) => y(d[k])).attr('height', (d) => y(0) - y(d[k])).attr('rx', 1.5).style('fill', dash.colors[i]);
+    });
+    g.append('rect').attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev, d) => placeTip(el, tip, ev, [F.fMonth(d.monat), 'Eingang: ' + F.fInt(d.eingang), 'Abgeschlossen: ' + F.fInt(d.abgeschlossen)]))
+      .on('pointerleave', () => { tip.hidden = true; });
+  });
+
+  // Termintreue je Monat: Linie
+  dash.draw('ch_tt', (el) => {
+    const all = status(el, 'monat'); if (!all) return;
+    el.replaceChildren();
+    const rows = all.filter((d) => d.termintreue != null);
+    const W = el.clientWidth || 400, H = window.LKhoehe ? window.LKhoehe(el, 200) : 200, m = { t: 10, r: 10, b: 26, l: 44 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img').attr('aria-label', 'Termintreue je Monat in Prozent');
+    const x = d3.scalePoint().domain(all.map((d) => d.monat)).range([m.l, W - m.r]).padding(0.3);
+    const lo = Math.max(0, Math.floor((d3.min(rows, (d) => d.termintreue) ?? 0) / 10) * 10);
+    const y = d3.scaleLinear().domain([lo, 100]).range([H - m.b, m.t]);
+    svg.append('g').attr('class', 'grid').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat('')).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat((v) => v + ' %')).call((g) => g.select('.domain').remove());
+    const step = Math.max(1, Math.ceil(all.length / Math.max(1, Math.floor((W - m.l) / 52))));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(all.map((d) => d.monat).filter((_, i) => i % step === 0)).tickFormat(F.fMonth).tickSizeOuter(0));
+    svg.append('path').datum(rows).attr('fill', 'none').attr('stroke-width', 2).style('stroke', dash.colors[0])
+      .attr('d', d3.line().x((d) => x(d.monat)).y((d) => y(d.termintreue)));
+    const tip = tipFor(el);
+    svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', (d) => x(d.monat)).attr('cy', (d) => y(d.termintreue)).attr('r', 3.5).style('fill', dash.colors[0])
+      .on('pointermove', (ev, d) => placeTip(el, tip, ev, [F.fMonth(d.monat), 'Termintreue: ' + F.fPct(d.termintreue), F.fInt(d.termingerecht) + ' von ' + F.fInt(d.mit_termin) + ' termingerecht']))
+      .on('pointerleave', () => { tip.hidden = true; });
+  });
+
+  // Horizontale Balken (Alter offener Aufträge, Anfrageart)
+  const hbar = (name, id, key, valKey, label, extra) => dash.draw(name, (el) => {
+    const rows = status(el, id); if (!rows) return;
+    el.replaceChildren();
+    const W = el.clientWidth || 400, bh = 26, m = { t: 4, r: 56, b: 4, l: 8 };
+    const H = m.t + m.b + rows.length * bh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', label);
+    const lab = svg.append('g').selectAll('text').data(rows).join('text').text((d) => d[key]).attr('x', m.l).attr('y', (d, i) => m.t + i * bh + bh / 2).attr('dy', '0.35em');
+    let lw = 0; lab.each(function () { lw = Math.max(lw, this.getComputedTextLength()); });
+    const x0 = m.l + lw + 10;
+    const x = d3.scaleLinear().domain([0, d3.max(rows, (d) => d[valKey]) || 1]).range([x0, Math.max(x0 + 10, W - m.r)]);
+    const tip = tipFor(el);
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', x0).attr('y', (d, i) => m.t + i * bh + 4).attr('height', bh - 8).attr('width', (d) => x(d[valKey]) - x0).attr('rx', 2).style('fill', dash.colors[0])
+      .on('pointermove', (ev, d) => placeTip(el, tip, ev, [d[key], ...extra(d)]))
+      .on('pointerleave', () => { tip.hidden = true; });
+    svg.append('g').selectAll('text').data(rows).join('text').text((d) => F.fInt(d[valKey])).attr('x', (d) => x(d[valKey]) + 6).attr('y', (d, i) => m.t + i * bh + bh / 2).attr('dy', '0.35em');
+  });
+  hbar('ch_alter', 'offen_alter', 'alter', 'anzahl', 'Offene Aufträge nach Alter seit Anlage', (d) => ['Offen: ' + F.fInt(d.anzahl)]);
+  hbar('ch_anfrage', 'anfrage', 'art', 'eingang', 'Auftragseingang nach Art der Anfrage', (d) => ['Eingang: ' + F.fInt(d.eingang), 'Anteil: ' + F.fPct(d.anteil)]);
+
+  // Tabellen
+  const table = (name, id, key, cols) => dash.draw(name, (tb) => {
+    const s = dash.data(id);
+    tb.replaceChildren();
+    if (s.status !== 'ok') return;
+    for (const r of s.data) {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-key', encodeURIComponent(String(r[key])));
+      for (const [f, fmt, cls] of cols) { const td = document.createElement('td'); if (cls) td.className = cls; td.textContent = r[f] == null ? '—' : fmt(r[f]); tr.append(td); }
+      tb.append(tr);
+    }
+  });
+  const t = (v) => String(v);
+  table('tb_prio', 'prio_tab', 'prio', [['prio', t], ['eingang', F.fInt], ['abgeschlossen', F.fInt], ['termintreue', F.fPct], ['dlz_median', F.fDays], ['dlz_p90', F.fDays], ['offen', F.fInt]]);
+  table('tb_labor', 'labor_tab', 'labor', [['labor', t], ['eingang', F.fInt], ['abgeschlossen', F.fInt], ['termintreue', F.fPct], ['dlz_median', F.fDays], ['offen', F.fInt], ['ueberfaellig', F.fInt], ['wert', F.fEur]]);
+  table('tb_ueber', 'ueberfaellig_liste', 'auftrag', [['auftrag', t], ['bezeichnung', t, 'l wrap'], ['labore', t, 'l'], ['prio', t, 'l'], ['termin', F.fDate], ['tage_ueber', F.fInt]]);
+})();
+</script>

@@ -1,0 +1,72 @@
+﻿Labor-KPI-Dashboard – lokale Fassung, Version 1.1
+=================================================
+
+Alles liegt in EINEM Ordner: das Dashboard, die Skripte und die Excel-Dateien.
+Internet wird nicht gebraucht.
+
+Inhalt
+------
+  Labor-KPI-Dashboard.html   das Dashboard; läuft im Browser (Edge, Chrome, Firefox)
+  Dashboard starten.bat      öffnet das Dashboard und beobachtet den Ordner (empfohlen)
+  Aktualisieren.bat          rechnet einmal neu, ohne den Ordner zu beobachten
+  aktualisieren.py           liest die Excel-Dateien und erzeugt daten.js
+  daten.js, stand.js         die aufbereiteten Daten; werden vom Skript neu geschrieben
+  *.xlsx                     die Excel-Dateien aus LIMS, SAP und die manuellen Daten
+
+So wird es benutzt
+------------------
+  1. "Dashboard starten.bat" doppelklicken.
+     Das Dashboard öffnet sich im Browser, daneben ein schwarzes Fenster. Dieses Fenster offen lassen.
+  2. Neue Exporte unter denselben Dateinamen in diesen Ordner legen (die alten überschreiben):
+       LMS_Auftrag.xlsx
+       LMS_Prüfgruppe.xlsx
+       LMS_gebuchte_Stunden.xlsx
+       manuelle_Daten.xlsx
+       SAP_Instandhaltungskosten.xlsx
+       Tabelle von Basis.xlsx
+       TecSa_DB_Standardprüfung.xlsx   (freiwillig; fehlt sie, bleibt nur der Reiter TecSa leer)
+  3. Nach etwa 10 Sekunden rechnet das schwarze Fenster neu (Dauer rund 20 bis 60 Sekunden).
+     Danach lädt sich das geöffnete Dashboard von selbst neu; Reiter und Filter bleiben erhalten.
+
+  Auch eine Änderung an manuelle_Daten.xlsx (speichern genügt) löst die Neuberechnung aus.
+
+Einmalig einrichten
+-------------------
+  1. Python 3.9 oder neuer installieren (python.org oder über die IT).
+  2. In der Eingabeaufforderung:  pip install pandas openpyxl
+  Ohne Python lässt sich das Dashboard trotzdem öffnen; es zeigt dann den Stand der mitgelieferten daten.js.
+
+Wenn etwas nicht klappt
+-----------------------
+  - "Python wurde nicht gefunden": Python ist nicht installiert oder nicht im Suchpfad. Siehe oben.
+  - "Es fehlt ein Python-Paket": pip install pandas openpyxl ausführen.
+  - "... ist gesperrt": die Datei ist in Excel geöffnet. Schließen, die Neuberechnung startet beim nächsten Speichern;
+    sonst "Aktualisieren.bat" ausführen.
+  - "Diese Dateien fehlen" oder "Aufbau der Datei geändert": Dateiname, Blattname oder Spaltenname stimmt nicht mehr.
+    Die Meldung nennt die Datei. Der alte Stand bleibt erhalten, es geht nichts verloren.
+  - Das Dashboard lädt nicht von selbst neu: mit F5 neu laden.
+
+Was in manuelle_Daten.xlsx gepflegt wird
+----------------------------------------
+  Abwesenheit_SF   Abwesenheitstage je Mitarbeiter und Monat (aus SuccessFactors)
+  FTE_Monat        FTE je Mitarbeiter und Monat: 1 = Vollzeit, 0,5 = halbe Stelle, 0 = in dem Monat nicht im Labor.
+                   Area und Name genau wie in Abwesenheit_SF. Leere Zelle: es gilt die feste FTE aus Abwesenheit_SF.
+  Arbeitstage      Arbeitstage je Monat
+  Aufträge_pro_Bereich   Soll-Aufträge je Labor und Monat (für die Auftragsquote)
+  BSC_Quartal      von Hand gepflegte BSC-Kennzahlen je Quartal: Dienstleistungsquote, Methodeneinsatz, Rückweisung
+  BSC_Vorgaben     SOLL-Werte, Zielwerte und Gewichtungen der BSC, dazu Stundensatz, Sachkonten intern/extern
+                   und die Tage des Sammelabschlusses in Babtec. Nur Spalte B ändern, die Texte in Spalte A nicht.
+
+  Soll-Stunden = (Arbeitstage - Abwesenheitstage) x FTE des Monats x 8.
+
+Hinweise
+--------
+  - Drucken oder als PDF speichern: im Browser Strg + P. Jeder Reiter kommt auf eine eigene Seite,
+    alle Erläuterungen sind aufgeklappt. Vorher im Reiter Übersicht oder BSC den Zeitraum wählen.
+  - daten.js enthält die Daten im Klartext (Auftragsnummern, Bezeichnungen, Kosten). Wer den Ordner bekommt,
+    kann alles lesen. Personen werden nicht ausgewertet; Namen können aber in freien Auftragsbezeichnungen
+    vorkommen. In manuelle_Daten.xlsx stehen die Namen der Mitarbeiter.
+  - Einige Erläuterungstexte im Dashboard nennen die Ausgangswerte (75 EUR, Sachkonten, 04.-06.04.2026).
+    Gerechnet wird mit den Werten aus dem Blatt BSC_Vorgaben, auch wenn der Text noch den alten Wert nennt.
+  - Die Exporte dürfen auch in einem anderen Ordner liegen:  python aktualisieren.py --ueberwachen "C:\Pfad\zum\Ordner"
+  - Diese Fassung ist vom Dashboard in Claude getrennt; Änderungen dort kommen hier nicht automatisch an.
