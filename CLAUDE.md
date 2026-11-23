@@ -32,6 +32,10 @@ werkzeuge/     Einmal-Skripte aus der Entwicklung; Pfade darin zeigen noch auf d
   fuellen.py, grafik.py      füllen die drei KPI-Formblätter (Termintreue, Budgeteinhaltung, Qualitätslevel)
   altlasten.py               Liste alter, nie abgeschlossener Aufträge
 logo/          Logo „Thomas | Labor“ (quer und gestapelt, hell und negativ)
+portable/      PYTHON_VERSION: Python-Version für das Offline-Paket
+build_portable.sh   baut das Offline-Paket mit mitgeliefertem Python (dist/…_portable_Windows.zip)
+requirements.txt    pandas, openpyxl (für aktualisieren.py und das Offline-Paket)
+.github/workflows/pruefen.yml   automatische Prüfung: HTML passt zum Quellcode, Paket bauen, unter Windows testen
 ```
 
 Die Excel-Exporte legt Matthias selbst nach `dashboard/` (Dateinamen siehe LIESMICH.txt): LMS_Auftrag, LMS_Prüfgruppe, LMS_gebuchte_Stunden, manuelle_Daten, SAP_Instandhaltungskosten, Tabelle von Basis, TecSa_DB_Standardprüfung (freiwillig).
@@ -42,6 +46,8 @@ Die Excel-Exporte legt Matthias selbst nach `dashboard/` (Dateinamen siehe LIESM
 2. `cd quellcode && python bauen.py` → schreibt `dashboard/Labor-KPI-Dashboard.html`.
 3. Daten: `cd dashboard && python aktualisieren.py` (braucht pandas, openpyxl).
 4. Prüfen im Browser (Datei öffnen genügt, kein Server nötig). Für automatische Tests eignet sich Playwright: Seite laden, auf Konsolenfehler achten, Kacheltexte auslesen.
+
+**Offline-Paket:** `./build_portable.sh` (aktueller Commit) oder `./build_portable.sh v1.2` (Git-Tag) baut aus den eingecheckten Dateien von `dashboard/` plus dem offiziellen portablen Python für Windows (NuGet-Paket `python`, Version aus `portable/PYTHON_VERSION`) samt pandas und openpyxl ein ZIP. Auf dem Arbeitsplatz ist dann keine Python-Installation nötig; die `.bat`-Dateien nehmen zuerst `python\python.exe` im Ordner, sonst ein installiertes Python. Excel-Exporte und `daten.js` sind nicht in Git und kommen deshalb nie ins Paket. Weitergeben nur auf Auftrag (siehe Feste Regeln). Die HTML-Datei muss nach Änderungen am Quellcode neu gebaut und mit eingecheckt werden, sonst schlägt die automatische Prüfung fehl.
 
 `bauen.py` arbeitet mit Textersetzungen (`rep(...)`), die genau einmal treffen müssen; eine fehlgeschlagene Ersetzung bricht mit AssertionError ab. Die Reiter werden dort mit kleinen Hilfsfunktionen (`tile`, `card`, `chart`, `table`, `tab`) aufgebaut; Übersicht, Termintreue-Kacheln, Abweichungsliste und Budget-Einstieg stehen als `UEBERSICHT`, `TT_KACHELN`, `TT_LISTE`, `BUDGET`.
 
